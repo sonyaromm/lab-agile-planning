@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sasha's Vocabulary Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1:#2b2560; --bg2:#4a1e5c;
+    --card:#3a2f6e; --border:rgba(255,255,255,0.12);
+    --white:#fff; --muted:#c9c3e8;
+    --yellow:#FFD93D; --green:#6BCB77; --red:#FF6B6B;
+    --blue:#4ECDC4; --pink:#FF6B9D; --purple:#C77DFF;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Nunito',sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2) 60%,#1e1840);
+    min-height:100vh; color:var(--white);
+    padding:20px 14px 60px;
+  }
+  .wrap { max-width:480px; margin:0 auto; }
+
+  .header { text-align:center; margin-bottom:18px; }
+  .title { font-family:'Fredoka One',cursive; font-size:1.5rem; color:var(--yellow); }
+  .subtitle { font-size:0.9rem; color:var(--muted); margin-top:6px; line-height:1.4; }
+
+  .dots { display:flex; justify-content:center; gap:8px; margin-top:14px; }
+  .dot {
+    width:30px; height:8px; border-radius:5px;
+    background:rgba(255,255,255,0.15); transition:all 0.3s;
+  }
+  .dot.active { background:var(--yellow); }
+  .dot.done   { background:var(--green); }
+
+  .page { display:none; }
+  .page.active { display:block; animation:fadeIn 0.4s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  .card {
+    background:var(--card); border:1.5px solid var(--border);
+    border-radius:20px; padding:20px 18px; margin-bottom:16px;
+  }
+  .task-title { font-family:'Fredoka One',cursive; font-size:1.2rem; color:var(--white); margin-bottom:4px; }
+  .task-sub { font-size:0.88rem; color:var(--muted); margin-bottom:16px; line-height:1.4; }
+
+  .q-block { margin-bottom:20px; padding-bottom:18px; border-bottom:1px solid var(--border); }
+  .q-block:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+  .q-label { font-size:0.85rem; color:var(--muted); font-weight:700; margin-bottom:6px; }
+  .q-emoji { font-size:2.6rem; text-align:center; margin:6px 0 12px; }
+
+  .opt-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .opt-btn {
+    background:rgba(255,255,255,0.06); border:1.5px solid var(--border);
+    border-radius:12px; padding:10px 8px; text-align:center;
+    font-weight:800; font-size:0.9rem; color:var(--white);
+    cursor:pointer; transition:all 0.15s;
+  }
+  .opt-btn:hover { border-color:var(--blue); }
+  .opt-btn.picked { border-color:var(--yellow); background:rgba(255,217,61,0.15); }
+  .opt-btn.correct { border-color:var(--green); background:rgba(107,203,119,0.18); }
+  .opt-btn.wrong   { border-color:var(--red);   background:rgba(255,107,107,0.18); }
+  .opt-btn.disabled { pointer-events:none; }
+
+  .ru-word { font-family:'Fredoka One',cursive; font-size:1.15rem; color:var(--pink); text-align:center; margin-bottom:10px; }
+  .text-input {
+    width:100%; padding:12px 14px; border-radius:12px;
+    border:1.5px solid var(--border); background:rgba(255,255,255,0.06);
+    color:var(--white); font-size:1rem; font-family:'Nunito',sans-serif; font-weight:700;
+    text-align:center;
+  }
+  .text-input:focus { outline:none; border-color:var(--blue); }
+  .text-input.correct { border-color:var(--green); background:rgba(107,203,119,0.15); }
+  .text-input.wrong   { border-color:var(--red);   background:rgba(255,107,107,0.15); }
+  .correct-hint { font-size:0.8rem; color:var(--green); margin-top:6px; text-align:center; display:none; }
+
+  .noun-label { font-family:'Fredoka One',cursive; font-size:1.05rem; color:var(--blue); text-align:center; margin-bottom:2px; }
+  .noun-ru { font-size:0.82rem; color:var(--muted); text-align:center; margin-bottom:10px; }
+  select.blank-select {
+    width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:0.95rem;
+    background:rgba(255,217,61,0.1); color:var(--yellow);
+    border:1.5px solid rgba(255,217,61,0.4); border-radius:10px;
+    padding:10px; text-align:center;
+  }
+  select.blank-select.correct { border-color:var(--green); color:var(--green); background:rgba(107,203,119,0.15); }
+  select.blank-select.wrong   { border-color:var(--red);   color:var(--red);   background:rgba(255,107,107,0.15); }
+
+  .btn {
+    width:100%; padding:14px; border:none; border-radius:14px;
+    font-family:'Fredoka One',cursive; font-size:1.05rem; color:#1a1633;
+    background:var(--yellow); cursor:pointer; margin-top:6px;
+    box-shadow:0 4px 0 #c9a91f; transition:transform 0.1s;
+  }
+  .btn:active { transform:translateY(3px); box-shadow:0 1px 0 #c9a91f; }
+  .btn.secondary { background:var(--green); box-shadow:0 4px 0 #4a9c53; }
+
+  .feedback {
+    text-align:center; font-weight:800; font-size:0.95rem;
+    margin-top:12px; min-height:22px;
+  }
+  .feedback.good { color:var(--green); }
+  .feedback.bad  { color:var(--yellow); }
+
+  /* results */
+  .final-medal { font-size:4rem; display:block; text-align:center; margin-bottom:6px; }
+  .final-title { font-family:'Fredoka One',cursive; font-size:1.5rem; text-align:center; color:var(--yellow); margin-bottom:4px; }
+  .final-score { font-family:'Fredoka One',cursive; font-size:2.2rem; text-align:center; color:var(--white); margin:10px 0; }
+  .breakdown { margin:16px 0; }
+  .bd-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 4px; border-bottom:1px solid var(--border); font-size:0.92rem;
+  }
+  .bd-row:last-child { border-bottom:none; }
+  .bd-name { color:var(--muted); font-weight:700; }
+  .bd-score { font-family:'Fredoka One',cursive; color:var(--white); }
+  .final-msg { text-align:center; font-size:0.92rem; color:var(--muted); margin-top:10px; line-height:1.5; }
+  .screenshot-note {
+    margin-top:18px; text-align:center; font-size:0.88rem; color:var(--pink);
+    font-weight:800; background:rgba(255,107,157,0.1); border:1.5px dashed rgba(255,107,157,0.4);
+    border-radius:14px; padding:12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <div class="title">📝 Sasha's Vocabulary Test</div>
+    <div class="subtitle">Do all 4 tasks. At the end, take a screenshot of your result and send it! 📸</div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- TASK 1 — Emoji feelings quiz -->
+  <div class="page active" id="t1">
+    <div class="card">
+      <div class="task-title">Task 1 — What feeling is it? 🎭</div>
+      <div class="task-sub">Look at the emoji and choose the correct word.</div>
+      <div id="t1-questions"></div>
+      <button class="btn" id="t1-check" onclick="checkTask(1)">Check Task 1 ✅</button>
+      <div class="feedback" id="t1-feedback"></div>
+    </div>
+    <button class="btn secondary" id="t1-next" style="display:none" onclick="goToTask(2)">Next: Task 2 ➡</button>
+  </div>
+
+  <!-- TASK 2 — Type the English word -->
+  <div class="page" id="t2">
+    <div class="card">
+      <div class="task-title">Task 2 — Write the word ✍️</div>
+      <div class="task-sub">Read the Russian word and type the English word.</div>
+      <div id="t2-questions"></div>
+      <button class="btn" id="t2-check" onclick="checkTask(2)">Check Task 2 ✅</button>
+      <div class="feedback" id="t2-feedback"></div>
+    </div>
+    <button class="btn secondary" id="t2-next" style="display:none" onclick="goToTask(3)">Next: Task 3 ➡</button>
+  </div>
+
+  <!-- TASK 3 — Match noun to adjective -->
+  <div class="page" id="t3">
+    <div class="card">
+      <div class="task-title">Task 3 — Find the matching word 🔗</div>
+      <div class="task-sub">Each noun has a matching adjective. Choose the right one!</div>
+      <div id="t3-questions"></div>
+      <button class="btn" id="t3-check" onclick="checkTask(3)">Check Task 3 ✅</button>
+      <div class="feedback" id="t3-feedback"></div>
+    </div>
+    <button class="btn secondary" id="t3-next" style="display:none" onclick="goToTask(4)">Next: Task 4 ➡</button>
+  </div>
+
+  <!-- TASK 4 — Animals -->
+  <div class="page" id="t4">
+    <div class="card">
+      <div class="task-title">Task 4 — Which animal is it? 🐾</div>
+      <div class="task-sub">Look at the emoji and choose the correct animal.</div>
+      <div id="t4-questions"></div>
+      <button class="btn" id="t4-check" onclick="checkTask(4)">Check Task 4 ✅</button>
+      <div class="feedback" id="t4-feedback"></div>
+    </div>
+    <button class="btn secondary" id="t4-next" style="display:none" onclick="showResults()">See My Result! 🏆</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="page" id="results">
+    <div class="card">
+      <span class="final-medal" id="finalMedal">🏆</span>
+      <div class="final-title" id="finalTitle">Great job, Sasha!</div>
+      <div class="final-score" id="finalScore">0 / 22</div>
+      <div class="breakdown" id="breakdown"></div>
+      <div class="final-msg" id="finalMsg"></div>
+      <div class="screenshot-note">📸 Take a screenshot of this screen and send it to your tutor!</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const t1Data = [
+  {emoji:'😀', correct:'happy',      options:['happy','sad','angry','bored']},
+  {emoji:'😢', correct:'sad',        options:['scared','sad','happy','envious']},
+  {emoji:'😠', correct:'angry',      options:['anxious','angry','sad','happy']},
+  {emoji:'😨', correct:'scared',     options:['happy','scared','disgusted','sad']},
+  {emoji:'🤢', correct:'disgusted',  options:['disgusted','angry','happy','bored']},
+  {emoji:'😳', correct:'embarrassed',options:['embarrassed','angry','envious','scared']},
+];
+
+const t2Data = [
+  {ru:'радость',  answers:['joy']},
+  {ru:'грусть',   answers:['sadness']},
+  {ru:'страх',    answers:['fear']},
+  {ru:'добрый',   answers:['kind']},
+  {ru:'смелый / храбрый', answers:['brave']},
+];
+
+const t3Data = [
+  {noun:'envy',          ru:'зависть',   correct:'envious',     options:['envious','angry','sad','bored']},
+  {noun:'ennui',         ru:'скука',     correct:'bored',       options:['bored','happy','scared','envious']},
+  {noun:'embarrassment', ru:'стыд',      correct:'embarrassed', options:['embarrassed','angry','disgusted','anxious']},
+  {noun:'disgust',       ru:'отвращение',correct:'disgusted',   options:['disgusted','sad','bored','envious']},
+  {noun:'anxiety',       ru:'тревога',   correct:'anxious',     options:['anxious','happy','embarrassed','angry']},
+];
+
+const t4Data = [
+  {emoji:'🐱', correct:'cat',    options:['cat','dog','rabbit','bear']},
+  {emoji:'🐶', correct:'dog',    options:['cat','dog','spider','snake']},
+  {emoji:'🕷️', correct:'spider', options:['snake','spider','turtle','butterfly']},
+  {emoji:'🐍', correct:'snake',  options:['snake','spider','rabbit','dog']},
+  {emoji:'🐰', correct:'rabbit', options:['turtle','rabbit','bear','butterfly']},
+  {emoji:'🦋', correct:'butterfly', options:['spider','snake','butterfly','turtle']},
+];
+
+const taskTotals = {1:t1Data.length, 2:t2Data.length, 3:t3Data.length, 4:t4Data.length};
+const taskScores = {1:0, 2:0, 3:0, 4:0};
+const taskNames = {1:'Task 1 — Feelings 🎭', 2:'Task 2 — Write the word ✍️', 3:'Task 3 — Match the word 🔗', 4:'Task 4 — Animals 🐾'};
+
+/* ═══════════════════════════════════════════
+   RENDER QUESTIONS
+═══════════════════════════════════════════ */
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function renderMCQ(containerId, data, prefix) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  data.forEach((q, i) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.innerHTML = `
+      <div class="q-label">Question ${i+1}</div>
+      <div class="q-emoji">${q.emoji}</div>
+      <div class="opt-grid" id="${prefix}-opts-${i}"></div>
+    `;
+    container.appendChild(block);
+    const grid = block.querySelector(`#${prefix}-opts-${i}`);
+    shuffle(q.options).forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'opt-btn';
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if (btn.classList.contains('disabled')) return;
+        grid.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('picked'));
+        btn.classList.add('picked');
+        btn.dataset.picked = 'true';
+        grid.querySelectorAll('.opt-btn').forEach(b => { if (b !== btn) delete b.dataset.picked; });
+      };
+      grid.appendChild(btn);
+    });
+  });
+}
+
+function renderTyped(containerId, data) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  data.forEach((q, i) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.innerHTML = `
+      <div class="q-label">Question ${i+1}</div>
+      <div class="ru-word">${q.ru}</div>
+      <input type="text" class="text-input" id="t2-input-${i}" placeholder="type in English..." autocomplete="off" autocapitalize="off">
+      <div class="correct-hint" id="t2-hint-${i}"></div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+function renderMatch(containerId, data) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  data.forEach((q, i) => {
+    const shuffled = shuffle(q.options);
+    const optsHtml = '<option value="">choose...</option>' + shuffled.map(o => `<option value="${o}">${o}</option>`).join('');
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.innerHTML = `
+      <div class="q-label">Question ${i+1}</div>
+      <div class="noun-label">${q.noun}</div>
+      <div class="noun-ru">${q.ru}</div>
+      <select class="blank-select" id="t3-select-${i}">${optsHtml}</select>
+    `;
+    container.appendChild(block);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   CHECK ANSWERS
+═══════════════════════════════════════════ */
+function checkTask(n) {
+  let correctCount = 0;
+
+  if (n === 1 || n === 4) {
+    const data = n === 1 ? t1Data : t4Data;
+    const prefix = 't' + n;
+    data.forEach((q, i) => {
+      const grid = document.getElementById(`${prefix}-opts-${i}`);
+      const picked = grid.querySelector('.opt-btn[data-picked="true"]');
+      grid.querySelectorAll('.opt-btn').forEach(b => b.classList.add('disabled'));
+      const pickedText = picked ? picked.textContent : null;
+      if (pickedText === q.correct) {
+        picked.classList.add('correct');
+        correctCount++;
+      } else {
+        if (picked) picked.classList.add('wrong');
+        grid.querySelectorAll('.opt-btn').forEach(b => {
+          if (b.textContent === q.correct) b.classList.add('correct');
+        });
+      }
+    });
+  }
+
+  if (n === 2) {
+    t2Data.forEach((q, i) => {
+      const input = document.getElementById(`t2-input-${i}`);
+      const hint = document.getElementById(`t2-hint-${i}`);
+      const val = input.value.trim().toLowerCase();
+      input.disabled = true;
+      if (q.answers.includes(val)) {
+        input.classList.add('correct');
+        correctCount++;
+      } else {
+        input.classList.add('wrong');
+        hint.textContent = 'Correct answer: ' + q.answers[0];
+        hint.style.display = 'block';
+      }
+    });
+  }
+
+  if (n === 3) {
+    t3Data.forEach((q, i) => {
+      const sel = document.getElementById(`t3-select-${i}`);
+      sel.disabled = true;
+      if (sel.value === q.correct) {
+        sel.classList.add('correct');
+        correctCount++;
+      } else {
+        sel.classList.add('wrong');
+      }
+    });
+  }
+
+  taskScores[n] = correctCount;
+  const total = taskTotals[n];
+  const fb = document.getElementById(`t${n}-feedback`);
+  fb.textContent = `You got ${correctCount} / ${total} correct!`;
+  fb.className = 'feedback ' + (correctCount === total ? 'good' : 'bad');
+
+  document.getElementById(`t${n}-check`).style.display = 'none';
+  document.getElementById(`t${n}-next`).style.display = 'block';
+
+  const dot = document.getElementById('dot' + n);
+  dot.classList.remove('active');
+  dot.classList.add('done');
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function initDots() {
+  const wrap = document.getElementById('dots');
+  wrap.innerHTML = '';
+  for (let i = 1; i <= 4; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.id = 'dot' + i;
+    wrap.appendChild(d);
+  }
+}
+
+function goToTask(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('t' + n).classList.add('active');
+  document.getElementById('dot' + n).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showResults() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('results').classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+
+  const total = Object.values(taskScores).reduce((a,b) => a+b, 0);
+  const maxTotal = Object.values(taskTotals).reduce((a,b) => a+b, 0);
+  const pct = total / maxTotal;
+
+  document.getElementById('finalScore').textContent = `${total} / ${maxTotal}`;
+
+  let medal, title, msg;
+  if (pct >= 0.9) {
+    medal = '🥇'; title = 'Superstar Sasha! 🌟';
+    msg = 'Amazing work! You know your words so well!';
+  } else if (pct >= 0.7) {
+    medal = '🥈'; title = 'Great job, Sasha! 🎉';
+    msg = 'Really good work! Just a little more practice!';
+  } else {
+    medal = '🥉'; title = 'Good try, Sasha! 💪';
+    msg = 'Nice effort! Let\'s review these words together next time.';
+  }
+  document.getElementById('finalMedal').textContent = medal;
+  document.getElementById('finalTitle').textContent = title;
+  document.getElementById('finalMsg').textContent = msg;
+
+  const bd = document.getElementById('breakdown');
+  bd.innerHTML = '';
+  for (let i = 1; i <= 4; i++) {
+    const row = document.createElement('div');
+    row.className = 'bd-row';
+    row.innerHTML = `<span class="bd-name">${taskNames[i]}</span><span class="bd-score">${taskScores[i]} / ${taskTotals[i]}</span>`;
+    bd.appendChild(row);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+initDots();
+renderMCQ('t1-questions', t1Data, 't1');
+renderTyped('t2-questions', t2Data);
+renderMatch('t3-questions', t3Data);
+renderMCQ('t4-questions', t4Data, 't4');
+</script>
+</body>
+</html>
