@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teddy's Adventure 🐻 — Full Lesson</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fredoka+One&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f0c29;
+  --bg2:      #1a1650;
+  --card:     rgba(255,255,255,0.07);
+  --border:   rgba(255,255,255,0.13);
+  --yellow:   #FFD93D;
+  --green:    #6BCB77;
+  --pink:     #FF6B9D;
+  --blue:     #4ECDC4;
+  --purple:   #C77DFF;
+  --red:      #FF6B6B;
+  --white:    #ffffff;
+  --muted:    #c8b8ff;
+  --radius:   22px;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--white);
+}
+
+/* ── floating blobs ── */
+.blob {
+  position: fixed; border-radius: 50%; filter: blur(80px);
+  pointer-events: none; z-index: 0; opacity: 0.18;
+}
+.blob1 { width:400px; height:400px; background:var(--purple); top:-100px; left:-100px; animation: drift1 12s ease-in-out infinite alternate; }
+.blob2 { width:350px; height:350px; background:var(--pink);   bottom:-80px; right:-80px; animation: drift2 10s ease-in-out infinite alternate; }
+.blob3 { width:250px; height:250px; background:var(--blue);   top:40%; left:50%; animation: drift1 14s ease-in-out infinite alternate; }
+@keyframes drift1 { from{transform:translate(0,0);} to{transform:translate(30px,40px);} }
+@keyframes drift2 { from{transform:translate(0,0);} to{transform:translate(-30px,-30px);} }
+
+/* ── container & pages ── */
+.wrap { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:20px; }
+.page { display:none; animation: fadeUp 0.45s ease; }
+.page.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px);} to{opacity:1;transform:translateY(0);} }
+
+/* ── progress bar ── */
+.progress-wrap { padding: 16px 0 6px; display:flex; align-items:center; gap:12px; }
+.progress-bar { flex:1; height:8px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:10px; background:linear-gradient(90deg, var(--yellow), var(--pink)); transition:width 0.5s ease; }
+.progress-label { font-size:0.8rem; color:var(--muted); font-weight:700; white-space:nowrap; }
+
+/* stars display */
+.stars-display { display:flex; justify-content:center; gap:6px; margin:6px 0 18px; font-size:1.5rem; }
+.star-icon { transition: transform 0.3s; filter: grayscale(1) opacity(0.3); }
+.star-icon.earned { filter: none; transform: scale(1.2); animation: starPop 0.4s ease; }
+@keyframes starPop { 0%{transform:scale(1);} 50%{transform:scale(1.5);} 100%{transform:scale(1.2);} }
+
+/* ── card ── */
+.card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+}
+.card-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem; color: var(--yellow);
+  margin-bottom: 6px; display:flex; align-items:center; gap:8px;
+}
+.card-sub { color: var(--muted); font-size:0.92rem; margin-bottom:18px; }
+
+/* ── buttons ── */
+.btn {
+  display:block; width:100%;
+  font-family: 'Fredoka One', cursive; font-size:1.25rem;
+  border:none; border-radius:16px; padding:16px;
+  cursor:pointer; transition: all 0.22s;
+  margin-bottom:12px;
+}
+.btn-yellow { background:linear-gradient(135deg,#FFD93D,#FF9500); color:#1a1035; box-shadow:0 6px 22px rgba(255,217,61,0.3); }
+.btn-yellow:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(255,217,61,0.45); }
+.btn-ghost  { background:rgba(255,255,255,0.08); color:var(--white); border:2px solid rgba(255,255,255,0.18); }
+.btn-ghost:hover { background:rgba(255,255,255,0.15); }
+
+/* ── feedback banner ── */
+.feedback {
+  text-align:center; font-size:1rem; font-weight:700;
+  min-height:28px; margin-top:10px; transition:all 0.3s;
+  border-radius:12px; padding: 6px 0;
+}
+.feedback.good { color:var(--green); }
+.feedback.bad  { color:var(--red); }
+.feedback.hint { color:var(--yellow); }
+
+/* ── SCREEN 1: Welcome ── */
+.welcome-teddy { font-size:7rem; text-align:center; animation:float 3s ease-in-out infinite; display:block; margin:10px 0; }
+@keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-14px);} }
+.welcome-title { font-family:'Fredoka One',cursive; font-size:2.8rem; text-align:center; color:var(--yellow); text-shadow:0 0 40px rgba(255,217,61,0.5); line-height:1.1; }
+.welcome-sub   { text-align:center; color:var(--muted); font-size:1.05rem; margin:10px 0 24px; line-height:1.6; }
+.story-box {
+  background:rgba(255,217,61,0.08); border:1.5px solid rgba(255,217,61,0.25);
+  border-radius:16px; padding:16px 20px; margin:16px 0 24px;
+  color:#ffe9a0; font-size:0.97rem; line-height:1.7;
+}
+
+/* ── SCREEN 2: How are you ── */
+.emoji-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:4px; }
+.emoji-btn {
+  background:var(--card); border:2px solid var(--border);
+  border-radius:18px; padding:18px 10px;
+  cursor:pointer; transition:all 0.22s; text-align:center;
+  font-size:0;
+}
+.emoji-btn .big-emoji { font-size:2.8rem; display:block; }
+.emoji-btn .emoji-label { font-size:0.85rem; font-weight:700; color:var(--muted); margin-top:6px; display:block; }
+.emoji-btn:hover { transform:translateY(-4px) scale(1.05); border-color:var(--yellow); }
+.emoji-btn.picked { border-color:var(--green); background:rgba(107,203,119,0.15); animation:popIn 0.35s ease; }
+@keyframes popIn { 0%{transform:scale(1);} 50%{transform:scale(1.12);} 100%{transform:scale(1);} }
+
+.response-bubble {
+  background:rgba(107,203,119,0.12); border:1.5px solid rgba(107,203,119,0.35);
+  border-radius:16px; padding:14px 20px;
+  color:var(--green); font-size:1.05rem; font-weight:700;
+  text-align:center; margin-top:14px; display:none;
+  animation:fadeUp 0.35s ease;
+}
+
+/* ── SCREEN 3: Memory game ── */
+.memory-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.mem-card {
+  aspect-ratio:1; border-radius:14px; cursor:pointer;
+  position:relative; transform-style:preserve-3d; transition:transform 0.45s;
+  border:2px solid var(--border);
+}
+.mem-card.flipped { transform:rotateY(180deg); }
+.mem-card.matched { border-color:var(--green); pointer-events:none; }
+.mem-card.matched .mem-back { background:rgba(107,203,119,0.2); }
+.mem-front, .mem-back {
+  position:absolute; width:100%; height:100%; border-radius:12px;
+  backface-visibility:hidden; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.mem-front { background:linear-gradient(135deg,var(--purple),#6c5ce7); font-size:1.6rem; }
+.mem-back  { background:var(--bg2); transform:rotateY(180deg); font-size:1.5rem; flex-direction:column; gap:4px; }
+.mem-back .mem-word { font-size:0.7rem; font-weight:700; color:var(--yellow); }
+.memory-status { color:var(--muted); font-size:0.9rem; text-align:center; margin-top:12px; }
+
+/* ── SCREEN 4: Match game ── */
+.match-wrap { display:flex; gap:16px; align-items:flex-start; }
+.match-col  { flex:1; display:flex; flex-direction:column; gap:10px; }
+.match-word {
+  background:var(--card); border:2px solid var(--border);
+  border-radius:14px; padding:13px 14px;
+  font-weight:700; font-size:1rem; cursor:pointer;
+  transition:all 0.2s; text-align:center;
+  color:var(--white);
+}
+.match-word:hover { border-color:var(--yellow); }
+.match-word.selected { border-color:var(--yellow); background:rgba(255,217,61,0.12); color:var(--yellow); }
+.match-word.correct  { border-color:var(--green);  background:rgba(107,203,119,0.15); color:var(--green); pointer-events:none; }
+.match-word.wrong    { border-color:var(--red); animation:shake 0.35s ease; }
+.match-emoji-btn {
+  background:var(--card); border:2px solid var(--border);
+  border-radius:14px; padding:13px;
+  font-size:2rem; cursor:pointer; transition:all 0.2s; text-align:center;
+}
+.match-emoji-btn:hover { border-color:var(--pink); transform:scale(1.06); }
+.match-emoji-btn.selected { border-color:var(--pink); background:rgba(255,107,157,0.12); }
+.match-emoji-btn.correct  { border-color:var(--green); background:rgba(107,203,119,0.15); pointer-events:none; }
+.match-emoji-btn.wrong    { border-color:var(--red); animation:shake 0.35s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+/* ── SCREEN 5: Guess the emoji ── */
+.big-emoji-display { font-size:7rem; text-align:center; display:block; margin:10px 0 6px; animation:float 2.5s ease-in-out infinite; }
+.four-options { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:16px; }
+.opt-btn {
+  background:var(--card); border:2px solid var(--border);
+  border-radius:16px; padding:14px 10px;
+  font-family:'Fredoka One',cursive; font-size:1.1rem; color:var(--white);
+  cursor:pointer; transition:all 0.2s; text-align:center;
+}
+.opt-btn:hover  { border-color:var(--blue); transform:scale(1.04); }
+.opt-btn.correct { background:rgba(107,203,119,0.25); border-color:var(--green); color:var(--green); }
+.opt-btn.wrong   { background:rgba(255,107,107,0.2);  border-color:var(--red);   color:var(--red); }
+.opt-btn.disabled { pointer-events:none; }
+.q-counter { color:var(--muted); font-size:0.88rem; text-align:center; margin-bottom:4px; }
+
+/* ── SCREEN 6: Act It ── */
+.act-center { text-align:center; }
+.act-prompt-emoji { font-size:5rem; display:block; margin:14px 0 6px; animation:float 2.5s ease-in-out infinite; }
+.act-prompt-word {
+  font-family:'Fredoka One',cursive; font-size:3rem; color:var(--yellow);
+  text-shadow:0 0 30px rgba(255,217,61,0.5); margin-bottom:6px;
+}
+.act-instruction { color:var(--muted); font-size:1rem; margin-bottom:20px; }
+.act-nav { display:flex; gap:10px; }
+.act-nav .btn { flex:1; margin-bottom:0; }
+
+/* ── SCREEN 7: Odd One Out ── */
+.odd-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.odd-btn {
+  background:var(--card); border:2px solid var(--border);
+  border-radius:18px; padding:18px 12px; cursor:pointer;
+  transition:all 0.22s; text-align:center;
+}
+.odd-btn .big-emoji { font-size:2.5rem; display:block; margin-bottom:6px; }
+.odd-btn .odd-label { font-size:0.88rem; font-weight:700; color:var(--muted); }
+.odd-btn:hover { border-color:var(--pink); transform:translateY(-3px); }
+.odd-btn.correct { border-color:var(--green); background:rgba(107,203,119,0.18); animation:popIn 0.35s ease; }
+.odd-btn.wrong   { border-color:var(--red);   background:rgba(255,107,107,0.15); animation:shake 0.35s ease; }
+.odd-btn.disabled { pointer-events:none; }
+.odd-level { color:var(--muted); font-size:0.85rem; text-align:center; margin-bottom:10px; }
+
+/* ── halfway celebration ── */
+.half-screen { text-align:center; padding:40px 20px; }
+.half-emoji  { font-size:5.5rem; animation:bounce 1s infinite alternate; display:block; margin-bottom:16px; }
+@keyframes bounce { from{transform:translateY(0);} to{transform:translateY(-16px);} }
+.half-title { font-family:'Fredoka One',cursive; font-size:2.2rem; color:var(--yellow); margin-bottom:8px; }
+.half-score { font-size:3.5rem; font-weight:900; margin:10px 0; }
+.half-msg   { color:var(--muted); font-size:1rem; margin-bottom:28px; line-height:1.6; }
+
+/* confetti */
+.confetti-piece {
+  position:fixed; pointer-events:none; z-index:999; border-radius:2px;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+}
+
+/* ── SCREEN 8: Spin the Wheel ── */
+.wheel-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; }
+.wheel-svg-wrap { position:relative; width:260px; height:260px; }
+.wheel-svg-wrap svg { width:100%; height:100%; }
+.wheel-pointer {
+  position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+  font-size:1.8rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  z-index:2;
+}
+.spin-btn {
+  font-family:'Fredoka One',cursive; font-size:1.1rem;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  border:none; border-radius:50px; padding:12px 32px;
+  color:white; cursor:pointer; transition:all 0.2s;
+  box-shadow:0 6px 20px rgba(199,125,255,0.35);
+}
+.spin-btn:hover { transform:translateY(-2px) scale(1.04); }
+.spin-btn:disabled { opacity:0.5; cursor:default; transform:none; }
+.wheel-result {
+  font-family:'Fredoka One',cursive; font-size:1.8rem;
+  color:var(--yellow); text-align:center; min-height:48px;
+  text-shadow:0 0 20px rgba(255,217,61,0.5);
+}
+.wheel-task { color:var(--muted); font-size:0.95rem; text-align:center; min-height:28px; margin-top:4px; }
+
+.skip-btn {
+  position:fixed; bottom:16px; right:16px; z-index:50;
+  background:rgba(255,255,255,0.12); color:var(--muted);
+  border:1.5px solid rgba(255,255,255,0.25); border-radius:20px;
+  padding:9px 18px; font-family:'Nunito',sans-serif; font-weight:700; font-size:0.85rem;
+  cursor:pointer; backdrop-filter:blur(8px); transition:all 0.2s;
+  display:none;
+}
+.skip-btn:hover { background:rgba(255,255,255,0.22); color:var(--white); transform:translateY(-2px); }
+
+/* ── SCREEN 9: Story / Reading ── */
+.story-text {
+  font-size:1.05rem; line-height:1.9; color:var(--white);
+  background:rgba(255,255,255,0.05); border:1.5px solid var(--border);
+  border-radius:16px; padding:18px 16px; margin-bottom:16px;
+}
+.blank-select {
+  font-family:'Fredoka One',cursive; font-size:0.95rem;
+  background:rgba(255,217,61,0.12); color:var(--yellow);
+  border:2px solid rgba(255,217,61,0.4); border-radius:10px;
+  padding:4px 8px; margin:0 2px; cursor:pointer;
+}
+.blank-select.correct { border-color:var(--green); color:var(--green); background:rgba(107,203,119,0.12); }
+.blank-select.wrong   { border-color:var(--red);   color:var(--red);   background:rgba(255,107,107,0.12); }
+.story-check-btn { margin-top:4px; }
+.comprehension { margin-top:18px; display:none; }
+.comp-q { font-family:'Fredoka One',cursive; font-size:1.05rem; color:var(--blue); margin:14px 0 8px; }
+.comp-options { display:flex; flex-direction:column; gap:8px; }
+.comp-opt {
+  background:var(--card); border:1.5px solid var(--border); border-radius:12px;
+  padding:12px 14px; text-align:left; font-size:0.95rem; color:var(--white);
+  cursor:pointer; transition:all 0.2s;
+}
+.comp-opt:hover { border-color:var(--blue); }
+.comp-opt.correct { border-color:var(--green); background:rgba(107,203,119,0.12); }
+.comp-opt.wrong   { border-color:var(--red);   background:rgba(255,107,107,0.12); }
+.comp-opt.disabled { pointer-events:none; }
+
+/* ── SCREEN 10: Fast Quiz ── */
+.fast-q-num { color:var(--muted); font-size:0.85rem; text-align:center; margin-bottom:8px; }
+.fast-item  { font-size:5rem; text-align:center; display:block; margin:8px 0; animation:float 2s ease-in-out infinite; }
+.fast-options { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px; }
+.fast-opt {
+  background:var(--card); border:2px solid var(--border);
+  border-radius:14px; padding:13px 8px;
+  font-family:'Fredoka One',cursive; font-size:1rem; color:var(--white);
+  cursor:pointer; transition:all 0.18s; text-align:center;
+}
+.fast-opt:hover  { border-color:var(--blue); transform:scale(1.04); }
+.fast-opt.correct{ background:rgba(107,203,119,0.25); border-color:var(--green); color:var(--green); }
+.fast-opt.wrong  { background:rgba(255,107,107,0.2);  border-color:var(--red);   color:var(--red); }
+.fast-opt.disabled{ pointer-events:none; }
+.fast-score-mini { text-align:center; color:var(--yellow); font-weight:700; font-size:0.9rem; margin-top:8px; }
+
+/* ── SCREEN 12: FINAL ── */
+.final-screen { text-align:center; padding:30px 10px; }
+.final-medal  { font-size:6rem; animation:bounce 1s infinite alternate; display:block; }
+@keyframes bounce { from{transform:translateY(0) rotate(-5deg);} to{transform:translateY(-16px) rotate(5deg);} }
+.final-title  { font-family:'Fredoka One',cursive; font-size:2.4rem; color:var(--yellow); margin:12px 0 6px; }
+.final-stars  { font-size:2rem; margin:8px 0 14px; letter-spacing:4px; }
+.final-msg    { color:var(--muted); font-size:1rem; line-height:1.7; margin-bottom:20px; }
+.friends-found { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; font-size:2rem; margin:10px 0 20px; }
+.final-score-big { font-size:2.8rem; font-weight:900; color:var(--white); margin:8px 0; }
+.replay-btn {
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  border:none; border-radius:50px; padding:14px 36px;
+  font-family:'Fredoka One',cursive; font-size:1.15rem; color:white;
+  cursor:pointer; transition:all 0.2s;
+  box-shadow:0 8px 24px rgba(78,205,196,0.3);
+}
+.replay-btn:hover { transform:scale(1.06); }
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<button class="skip-btn" id="skipBtn" onclick="skipTask()">Skip ⏭</button>
+
+<div class="wrap">
+
+  <!-- progress -->
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">1 / 7</div>
+  </div>
+  <div class="stars-display" id="starsDisplay"></div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 1 — WELCOME
+  ══════════════════════════════════════════════ -->
+  <div class="page active" id="s1">
+    <span class="welcome-teddy">🐻</span>
+    <div class="welcome-title">Hi Sasha! 👋</div>
+    <div class="welcome-sub">Meet Teddy! He needs YOUR help today.</div>
+    <div class="story-box">
+      🐾 Teddy lost his pet friends!<br>
+      They are hiding all over the world.<br>
+      Help Teddy find them — and learn new words along the way!<br><br>
+      ⭐ Collect stars. Find all the animals. Save the day!
+    </div>
+    <button class="btn btn-yellow" onclick="goTo('s2')">Start the adventure! 🚀</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 2 — HOW ARE YOU TODAY?
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s2">
+    <div class="card">
+      <div class="card-title">😊 How are you today?</div>
+      <div class="card-sub">Teddy wants to know! Tap how you feel right now.</div>
+      <div class="emoji-grid" id="howAreYouGrid">
+        <button class="emoji-btn" onclick="pickFeeling(this,'I am happy! 😀')">
+          <span class="big-emoji">😀</span><span class="emoji-label">happy</span>
+        </button>
+        <button class="emoji-btn" onclick="pickFeeling(this,'I am sad... 😢')">
+          <span class="big-emoji">😢</span><span class="emoji-label">sad</span>
+        </button>
+        <button class="emoji-btn" onclick="pickFeeling(this,'I am tired! 😴')">
+          <span class="big-emoji">😴</span><span class="emoji-label">tired</span>
+        </button>
+        <button class="emoji-btn" onclick="pickFeeling(this,'I am angry! 😠')">
+          <span class="big-emoji">😠</span><span class="emoji-label">angry</span>
+        </button>
+        <button class="emoji-btn" onclick="pickFeeling(this,'I am surprised! 😲')">
+          <span class="big-emoji">😲</span><span class="emoji-label">surprised</span>
+        </button>
+        <button class="emoji-btn" onclick="pickFeeling(this,'I am scared! 😨')">
+          <span class="big-emoji">😨</span><span class="emoji-label">scared</span>
+        </button>
+      </div>
+      <div class="response-bubble" id="feelingResponse"></div>
+    </div>
+    <button class="btn btn-yellow" id="s2next" style="display:none" onclick="earnStar(); goTo('s3')">Next: Memory Game! 🃏</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 3 — MEMORY GAME
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s3">
+    <div class="card">
+      <div class="card-title">🃏 Memory Challenge</div>
+      <div class="card-sub">Find all the matching pairs! Tap to flip the cards.</div>
+      <div class="memory-grid" id="memoryGrid"></div>
+      <div class="memory-status" id="memStatus">Find the pairs! 🔍</div>
+      <div class="feedback" id="memFeedback"></div>
+    </div>
+    <button class="btn btn-yellow" id="s3next" style="display:none" onclick="goTo('s4')">Next: Match Game! 🎯</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 4 — MATCH GAME
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s4">
+    <div class="card">
+      <div class="card-title">🎯 Match Game</div>
+      <div class="card-sub">Tap a word, then tap the right animal!</div>
+      <div class="match-wrap">
+        <div class="match-col" id="matchWords"></div>
+        <div class="match-col" id="matchEmojis"></div>
+      </div>
+      <div class="feedback" id="matchFeedback"></div>
+    </div>
+    <button class="btn btn-yellow" id="s4next" style="display:none" onclick="goTo('s5')">Next: Guess the Emoji! 👀</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 5 — GUESS THE EMOJI
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s5">
+    <div class="card">
+      <div class="card-title">👀 Guess the Emoji!</div>
+      <div class="card-sub">Look at the big emoji. What feeling is it?</div>
+      <div class="q-counter" id="guessCounter">Question 1 / 6</div>
+      <span class="big-emoji-display" id="bigEmoji">😀</span>
+      <div class="four-options" id="guessOptions"></div>
+      <div class="feedback" id="guessFeedback"></div>
+    </div>
+    <button class="btn btn-yellow" id="s5next" style="display:none" onclick="goTo('s6')">Next: Act It! 🎭</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 6 — ACT IT
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s6">
+    <div class="card">
+      <div class="card-title">🎭 Act It!</div>
+      <div class="card-sub">Can you act like this? Show your aunt! Then press Next.</div>
+      <div class="act-center">
+        <span class="act-prompt-emoji" id="actEmoji">😀</span>
+        <div class="act-prompt-word" id="actWord">HAPPY</div>
+        <div class="act-instruction" id="actInstruction">Make a happy face! 😄</div>
+      </div>
+      <div class="act-nav">
+        <button class="btn btn-ghost" onclick="prevAct()">← Back</button>
+        <button class="btn btn-yellow" onclick="nextAct()">Next! →</button>
+      </div>
+      <div class="feedback" id="actFeedback"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 7 — ODD ONE OUT
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s7">
+    <div class="card">
+      <div class="card-title">🔍 Find the Odd One!</div>
+      <div class="card-sub">Three are feelings. One is different. Which one doesn't belong?</div>
+      <div class="odd-level" id="oddLevel">Level 1 of 3</div>
+      <div class="odd-grid" id="oddGrid"></div>
+      <div class="feedback" id="oddFeedback"></div>
+    </div>
+    <button class="btn btn-yellow" id="s7next" style="display:none" onclick="showHalfway()">See your score! 🌟</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       HALFWAY CELEBRATION
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="sHalf">
+    <div class="half-screen">
+      <span class="half-emoji" id="halfEmoji">🐻</span>
+      <div class="half-title" id="halfTitle">Amazing, Sasha!</div>
+      <div class="half-score" id="halfScore">⭐⭐⭐</div>
+      <div class="half-msg" id="halfMsg"></div>
+      <div class="story-box">
+        🐾 Teddy says:<br>
+        "We found <strong>3 friends</strong> already!<br>
+        The cat 🐱, the rabbit 🐰 and the butterfly 🦋<br>
+        are safe now. Let's keep going!"
+      </div>
+      <button class="btn btn-yellow" onclick="goTo('s8')">Continue the adventure! 🐾</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 8 — SPIN THE WHEEL
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s8">
+    <div class="card">
+      <div class="card-title">🎡 Spin the Wheel!</div>
+      <div class="card-sub">Spin and show the feeling that comes up! Teddy will watch 👀</div>
+      <div class="wheel-wrap">
+        <div class="wheel-svg-wrap">
+          <div class="wheel-pointer">▼</div>
+          <svg id="wheelSvg" viewBox="0 0 200 200"></svg>
+        </div>
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">🎡 SPIN!</button>
+        <div class="wheel-result" id="wheelResult"></div>
+        <div class="wheel-task"  id="wheelTask"></div>
+      </div>
+      <div class="feedback" id="spinFeedback"></div>
+    </div>
+    <button class="btn btn-yellow" id="s8next" style="display:none" onclick="goTo('s9')">Next: Teddy's Story! 📖</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 9 — STORY / READING
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s9">
+    <div class="card">
+      <div class="card-title">📖 Teddy's Story</div>
+      <div class="card-sub">Tap each blank and choose the right word to finish the story!</div>
+      <div class="story-text" id="storyText"></div>
+      <button class="btn btn-yellow story-check-btn" id="storyCheckBtn" onclick="checkStory()">Check my story! ✅</button>
+      <div class="feedback" id="storyFeedback"></div>
+      <div class="comprehension" id="comprehension">
+        <div class="card-title" style="font-size:1.15rem">❓ Questions</div>
+        <div id="compQuestions"></div>
+      </div>
+    </div>
+    <button class="btn btn-yellow" id="s9next" style="display:none" onclick="goTo('s10')">Next: Fast Quiz! ⚡</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 10 — FAST QUIZ
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s10">
+    <div class="card">
+      <div class="card-title">⚡ Fast Quiz!</div>
+      <div class="card-sub">12 questions — fast as you can! Help Teddy find the last friends!</div>
+      <div class="fast-q-num" id="fastQNum">Question 1 / 12</div>
+      <span class="fast-item" id="fastItem">😀</span>
+      <div class="fast-options" id="fastOptions"></div>
+      <div class="fast-score-mini" id="fastScoreMini">⭐ 0 correct</div>
+      <div class="feedback" id="fastFeedback"></div>
+    </div>
+    <button class="btn btn-yellow" id="s10next" style="display:none" onclick="showFinal()">See the Final Result! 🏆</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SCREEN 11 — FINAL
+  ══════════════════════════════════════════════ -->
+  <div class="page" id="s11">
+    <div class="final-screen">
+      <span class="final-medal" id="finalMedal">🏆</span>
+      <div class="final-title" id="finalTitle">Amazing, Sasha!</div>
+      <div class="final-stars" id="finalStars">⭐⭐⭐⭐⭐</div>
+      <div class="final-score-big" id="finalScoreBig">11 / 11</div>
+      <div class="friends-found">🐱 🐶 🕷️ 🐍 🐰 🐻 🦋 🐢</div>
+      <div class="final-msg" id="finalMsg">Teddy found all his friends because of you!</div>
+      <div class="story-box" id="finalStory"></div>
+      <br>
+      <button class="replay-btn" onclick="restartAll()">🔄 Play Again!</button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ═══════════════════════════════════════════
+   GLOBAL STATE
+═══════════════════════════════════════════ */
+const TOTAL_SCREENS = 11;
+let currentScreen = 1;
+let currentPageId = 's1';
+let stars = 0;
+let score = 0;
+let total = 0;
+
+function goTo(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const num = id === 'sHalf' ? 8 : parseInt(id.replace('s',''));
+  currentScreen = num;
+  currentPageId = id;
+  updateProgress(num);
+  updateSkipVisibility(id);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateSkipVisibility(id) {
+  const btn = document.getElementById('skipBtn');
+  btn.style.display = (id === 's1' || id === 's11') ? 'none' : 'block';
+}
+
+/* ═══════════════════════════════════════════
+   SKIP — move on without finishing the task
+═══════════════════════════════════════════ */
+const skipMap = {
+  s2:'s3', s3:'s4', s4:'s5', s5:'s6', s6:'s7',
+  sHalf:'s8', s8:'s9', s9:'s10',
+};
+
+function skipTask() {
+  const id = currentPageId;
+  if (id === 's7')  { showHalfway(); return; }
+  if (id === 's10') { showFinal();   return; }
+  const next = skipMap[id];
+  if (next) goTo(next);
+}
+
+function updateProgress(n) {
+  const pct = Math.min(((n-1)/TOTAL_SCREENS)*100, 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = Math.min(n,TOTAL_SCREENS) + ' / ' + TOTAL_SCREENS;
+}
+
+function earnStar() {
+  stars = Math.min(stars + 1, TOTAL_SCREENS);
+  renderStars();
+}
+
+function renderStars() {
+  const wrap = document.getElementById('starsDisplay');
+  wrap.innerHTML = '';
+  for (let i = 0; i < TOTAL_SCREENS; i++) {
+    const s = document.createElement('span');
+    s.className = 'star-icon' + (i < stars ? ' earned' : '');
+    s.textContent = '⭐';
+    wrap.appendChild(s);
+  }
+}
+renderStars();
+
+function confetti(count=40) {
+  const cols = ['#FFD93D','#FF6B9D','#6BCB77','#C77DFF','#4ECDC4','#FF6B6B'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const size = 6 + Math.random()*8;
+      el.style.cssText = `left:${Math.random()*100}vw;top:-10px;
+        width:${size}px;height:${size}px;
+        background:${cols[Math.floor(Math.random()*cols.length)]};
+        border-radius:${Math.random()>.5?'50%':'3px'};
+        animation-duration:${1.5+Math.random()*2}s;
+        animation-delay:${Math.random()*0.4}s;`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 3200);
+    }, i*35);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 2 — HOW ARE YOU
+═══════════════════════════════════════════ */
+let feelingPicked = false;
+function pickFeeling(btn, text) {
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('picked'));
+  btn.classList.add('picked');
+  const bubble = document.getElementById('feelingResponse');
+  bubble.textContent = '⭐ ' + text;
+  bubble.style.display = 'block';
+  if (!feelingPicked) { feelingPicked = true; }
+  document.getElementById('s2next').style.display = 'block';
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 3 — MEMORY GAME
+═══════════════════════════════════════════ */
+const memPairs = [
+  {emoji:'🐱', word:'cat'},   {emoji:'🐶', word:'dog'},
+  {emoji:'🕷️', word:'spider'},{emoji:'🐍', word:'snake'},
+  {emoji:'🐰', word:'rabbit'},{emoji:'🐻', word:'bear'},
+  {emoji:'🦋', word:'butterfly'},{emoji:'🐢', word:'turtle'},
+];
+
+let memCards = [], memFlipped = [], memMatched = 0;
+
+function initMemory() {
+  const grid = document.getElementById('memoryGrid');
+  grid.innerHTML = '';
+  memFlipped = []; memMatched = 0;
+  document.getElementById('s3next').style.display = 'none';
+  document.getElementById('memFeedback').textContent = '';
+  document.getElementById('memStatus').textContent = 'Find the pairs! 🔍';
+
+  // duplicate + shuffle
+  const items = [...memPairs, ...memPairs].map((p,i) => ({...p, id:i}));
+  for (let i = items.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [items[i],items[j]] = [items[j],items[i]];
+  }
+  memCards = items;
+
+  items.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.idx = idx;
+    card.dataset.word = item.word;
+    card.innerHTML = `
+      <div class="mem-front">🌟</div>
+      <div class="mem-back">
+        <span>${item.emoji}</span>
+        <span class="mem-word">${item.word}</span>
+      </div>`;
+    card.onclick = () => flipMemCard(card, idx);
+    grid.appendChild(card);
+  });
+}
+
+let memLocked = false;
+function flipMemCard(card, idx) {
+  if (memLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  card.classList.add('flipped');
+  memFlipped.push({card, idx});
+
+  if (memFlipped.length === 2) {
+    memLocked = true;
+    const [a, b] = memFlipped;
+    if (memCards[a.idx].word === memCards[b.idx].word && a.idx !== b.idx) {
+      // match
+      setTimeout(() => {
+        a.card.classList.add('matched');
+        b.card.classList.add('matched');
+        memMatched++;
+        memFlipped = []; memLocked = false;
+        const fb = document.getElementById('memFeedback');
+        fb.textContent = '✅ Match! ' + memCards[a.idx].word + '!';
+        fb.className = 'feedback good';
+        document.getElementById('memStatus').textContent = `${memMatched} / ${memPairs.length} pairs found`;
+        if (memMatched === memPairs.length) {
+          fb.textContent = '🎉 All pairs found! Amazing!';
+          earnStar(); confetti(30);
+          setTimeout(() => document.getElementById('s3next').style.display = 'block', 600);
+        }
+      }, 500);
+    } else {
+      setTimeout(() => {
+        a.card.classList.remove('flipped');
+        b.card.classList.remove('flipped');
+        memFlipped = []; memLocked = false;
+        const fb = document.getElementById('memFeedback');
+        fb.textContent = '❌ Not a match — try again!';
+        fb.className = 'feedback bad';
+      }, 900);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 4 — MATCH GAME
+═══════════════════════════════════════════ */
+const matchData = [
+  {word:'cat',   emoji:'🐱'}, {word:'dog',    emoji:'🐶'},
+  {word:'spider',emoji:'🕷️'}, {word:'rabbit', emoji:'🐰'},
+  {word:'bear',  emoji:'🐻'}, {word:'butterfly',emoji:'🦋'},
+];
+
+let matchSelected = {word:null, emoji:null};
+let matchDone = 0;
+
+function initMatch() {
+  matchSelected = {word:null, emoji:null};
+  matchDone = 0;
+  document.getElementById('s4next').style.display = 'none';
+  document.getElementById('matchFeedback').textContent = '';
+
+  const shuffledData = [...matchData].sort(()=>Math.random()-0.5);
+  const shuffledEmojis = [...matchData].sort(()=>Math.random()-0.5);
+
+  const wordsCol  = document.getElementById('matchWords');
+  const emojisCol = document.getElementById('matchEmojis');
+  wordsCol.innerHTML = ''; emojisCol.innerHTML = '';
+
+  shuffledData.forEach(item => {
+    const btn = document.createElement('div');
+    btn.className = 'match-word';
+    btn.textContent = item.word;
+    btn.dataset.word = item.word;
+    btn.onclick = () => selectMatchWord(btn, item.word);
+    wordsCol.appendChild(btn);
+  });
+
+  shuffledEmojis.forEach(item => {
+    const btn = document.createElement('div');
+    btn.className = 'match-emoji-btn';
+    btn.textContent = item.emoji;
+    btn.dataset.word = item.word;
+    btn.onclick = () => selectMatchEmoji(btn, item.word);
+    emojisCol.appendChild(btn);
+  });
+}
+
+function selectMatchWord(btn, word) {
+  if (btn.classList.contains('correct')) return;
+  document.querySelectorAll('.match-word:not(.correct)').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  matchSelected.word = word;
+  matchSelected.wordBtn = btn;
+  tryMatch();
+}
+
+function selectMatchEmoji(btn, word) {
+  if (btn.classList.contains('correct')) return;
+  document.querySelectorAll('.match-emoji-btn:not(.correct)').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  matchSelected.emoji = word;
+  matchSelected.emojiBtn = btn;
+  tryMatch();
+}
+
+function tryMatch() {
+  if (!matchSelected.word || !matchSelected.emoji) return;
+  const fb = document.getElementById('matchFeedback');
+  if (matchSelected.word === matchSelected.emoji) {
+    matchSelected.wordBtn.classList.replace('selected','correct');
+    matchSelected.emojiBtn.classList.replace('selected','correct');
+    fb.textContent = '✅ ' + matchSelected.word + '! Great!';
+    fb.className = 'feedback good';
+    matchDone++;
+    if (matchDone === matchData.length) {
+      earnStar(); confetti(25);
+      setTimeout(() => document.getElementById('s4next').style.display = 'block', 500);
+    }
+  } else {
+    matchSelected.wordBtn.classList.add('wrong');
+    matchSelected.emojiBtn.classList.add('wrong');
+    fb.textContent = '❌ Try again!';
+    fb.className = 'feedback bad';
+    setTimeout(() => {
+      matchSelected.wordBtn.classList.remove('wrong','selected');
+      matchSelected.emojiBtn.classList.remove('wrong','selected');
+    }, 700);
+  }
+  matchSelected = {word:null, emoji:null};
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 5 — GUESS THE EMOJI
+═══════════════════════════════════════════ */
+const guessData = [
+  {emoji:'😀', correct:'happy',       options:['happy','sad','angry','bored']},
+  {emoji:'😢', correct:'sad',         options:['scared','sad','happy','envious']},
+  {emoji:'😠', correct:'angry',       options:['anxious','angry','sad','happy']},
+  {emoji:'😨', correct:'scared',      options:['happy','scared','disgusted','sad']},
+  {emoji:'🤢', correct:'disgusted',   options:['disgusted','angry','happy','bored']},
+  {emoji:'😰', correct:'anxious',     options:['anxious','sad','embarrassed','happy']},
+  {emoji:'😒', correct:'envious',     options:['envious','angry','scared','disgusted']},
+  {emoji:'😑', correct:'bored',       options:['bored','happy','anxious','sad']},
+  {emoji:'😳', correct:'embarrassed', options:['embarrassed','angry','envious','scared']},
+];
+
+let guessIndex = 0, guessCorrect = 0;
+
+function initGuess() {
+  guessIndex = 0; guessCorrect = 0;
+  document.getElementById('s5next').style.display = 'none';
+  showGuessQ();
+}
+
+function showGuessQ() {
+  const q = guessData[guessIndex];
+  document.getElementById('bigEmoji').textContent = q.emoji;
+  document.getElementById('guessCounter').textContent = `Question ${guessIndex+1} / ${guessData.length}`;
+  document.getElementById('guessFeedback').textContent = '';
+
+  const opts = document.getElementById('guessOptions');
+  opts.innerHTML = '';
+  const shuffled = [...q.options].sort(()=>Math.random()-0.5);
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.onclick = () => checkGuess(btn, opt, q.correct);
+    opts.appendChild(btn);
+  });
+}
+
+function checkGuess(btn, chosen, correct) {
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('guessFeedback');
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    fb.textContent = '⭐ Correct! ' + correct + '!';
+    fb.className = 'feedback good';
+    guessCorrect++;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      if (b.textContent === correct) b.classList.add('correct');
+    });
+    fb.textContent = '❌ It was ' + correct + '!';
+    fb.className = 'feedback bad';
+  }
+  guessIndex++;
+  if (guessIndex < guessData.length) {
+    setTimeout(showGuessQ, 1200);
+  } else {
+    const allGood = guessCorrect >= 7;
+    if (allGood) { earnStar(); confetti(30); }
+    setTimeout(() => {
+      fb.textContent = `🎉 ${guessCorrect}/${guessData.length} correct!`;
+      fb.className = 'feedback good';
+      document.getElementById('s5next').style.display = 'block';
+    }, 800);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 6 — ACT IT
+═══════════════════════════════════════════ */
+const actData = [
+  {emoji:'😀', word:'HAPPY',       instruction:'Make a big happy smile! 😄'},
+  {emoji:'😢', word:'SAD',         instruction:'Look down... feel sad... 😢'},
+  {emoji:'😠', word:'ANGRY',       instruction:'Frown your face and look angry! 😠'},
+  {emoji:'😨', word:'SCARED',      instruction:'Open your eyes wide — you\'re scared! 😨'},
+  {emoji:'🤢', word:'DISGUSTED',   instruction:'Make a yucky face — eww! 🤢'},
+  {emoji:'😰', word:'ANXIOUS',     instruction:'Bite your nails — you feel worried! 😰'},
+  {emoji:'😒', word:'ENVIOUS',     instruction:'Cross your arms — someone has something you want! 😒'},
+  {emoji:'😑', word:'BORED',       instruction:'Yawn slowly... nothing to do... 😑'},
+  {emoji:'😳', word:'EMBARRASSED', instruction:'Hide your face — oops! 😳'},
+];
+let actIndex = 0;
+
+function initAct() {
+  actIndex = 0;
+  showAct();
+}
+
+function showAct() {
+  const a = actData[actIndex];
+  document.getElementById('actEmoji').textContent = a.emoji;
+  document.getElementById('actWord').textContent = a.word;
+  document.getElementById('actInstruction').textContent = a.instruction;
+  document.getElementById('actFeedback').textContent =
+    `${actIndex+1} / ${actData.length}`;
+  document.getElementById('actFeedback').className = 'feedback hint';
+}
+
+function nextAct() {
+  if (actIndex < actData.length - 1) {
+    actIndex++;
+    showAct();
+  } else {
+    earnStar(); confetti(20);
+    document.getElementById('actFeedback').textContent = '🎉 Great acting! Teddy loves it!';
+    document.getElementById('actFeedback').className = 'feedback good';
+    setTimeout(() => goTo('s7'), 1400);
+  }
+}
+function prevAct() {
+  if (actIndex > 0) { actIndex--; showAct(); }
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 7 — ODD ONE OUT
+═══════════════════════════════════════════ */
+const oddLevels = [
+  { items:[
+    {emoji:'😀',label:'happy',  odd:false},
+    {emoji:'😢',label:'sad',    odd:false},
+    {emoji:'🍕',label:'pizza',  odd:true},
+    {emoji:'😠',label:'angry',  odd:false},
+  ], explanation:'🍕 Pizza is food — not a feeling!' },
+  { items:[
+    {emoji:'🤢',label:'disgusted',  odd:false},
+    {emoji:'😰',label:'anxious',    odd:false},
+    {emoji:'🎂',label:'cake',       odd:true},
+    {emoji:'😳',label:'embarrassed',odd:false},
+  ], explanation:'🎂 Cake is food — not a feeling!' },
+  { items:[
+    {emoji:'🐱',label:'cat',      odd:false},
+    {emoji:'😨',label:'scared',   odd:true},
+    {emoji:'🐶',label:'dog',      odd:false},
+    {emoji:'🐰',label:'rabbit',   odd:false},
+  ], explanation:'😨 Scared is a feeling — not an animal!' },
+  { items:[
+    {emoji:'😒',label:'envious', odd:false},
+    {emoji:'😑',label:'bored',   odd:false},
+    {emoji:'🐢',label:'turtle',  odd:true},
+    {emoji:'😀',label:'happy',   odd:false},
+  ], explanation:'🐢 Turtle is an animal — not a feeling!' },
+];
+
+let oddLevel = 0;
+
+function initOdd() {
+  oddLevel = 0;
+  document.getElementById('s7next').style.display = 'none';
+  showOddLevel();
+}
+
+function showOddLevel() {
+  document.getElementById('oddLevel').textContent = `Level ${oddLevel+1} of ${oddLevels.length}`;
+  document.getElementById('oddFeedback').textContent = '';
+  const data = oddLevels[oddLevel];
+  const grid = document.getElementById('oddGrid');
+  grid.innerHTML = '';
+  const items = [...data.items].sort(()=>Math.random()-0.5);
+  items.forEach(item => {
+    const btn = document.createElement('div');
+    btn.className = 'odd-btn';
+    btn.innerHTML = `<span class="big-emoji">${item.emoji}</span><span class="odd-label">${item.label}</span>`;
+    btn.onclick = () => checkOdd(btn, item.odd, data.explanation);
+    grid.appendChild(btn);
+  });
+}
+
+function checkOdd(btn, isOdd, explanation) {
+  document.querySelectorAll('.odd-btn').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('oddFeedback');
+  if (isOdd) {
+    btn.classList.add('correct');
+    fb.textContent = '✅ ' + explanation;
+    fb.className = 'feedback good';
+    score++;
+    setTimeout(() => {
+      oddLevel++;
+      if (oddLevel < oddLevels.length) {
+        showOddLevel();
+      } else {
+        earnStar(); confetti(35);
+        fb.textContent = '🎉 You found all the odd ones! Teddy is proud!';
+        setTimeout(() => document.getElementById('s7next').style.display='block', 700);
+      }
+    }, 1500);
+  } else {
+    btn.classList.add('wrong');
+    fb.textContent = '❌ That one belongs! Find the odd one!';
+    fb.className = 'feedback bad';
+    setTimeout(() => {
+      document.querySelectorAll('.odd-btn').forEach(b => {
+        b.classList.remove('disabled','wrong','correct');
+      });
+    }, 800);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   HALFWAY SCREEN
+═══════════════════════════════════════════ */
+function showHalfway() {
+  earnStar();
+  goTo('sHalf');
+  confetti(50);
+  const s = stars;
+  document.getElementById('halfScore').textContent = '⭐'.repeat(s);
+  let emoji, title, msg;
+  if (s >= 6) {
+    emoji='🌟'; title='Superstar Sasha!';
+    msg='You answered everything perfectly! Teddy found 3 friends because of YOU! 🐱🐰🦋';
+  } else if (s >= 4) {
+    emoji='😊'; title='Great job, Sasha!';
+    msg='Really well done! Teddy is so happy to have your help! 🐾';
+  } else {
+    emoji='💪'; title='Keep going, Sasha!';
+    msg='You\'re learning! Every step helps Teddy find his friends! 🐾';
+  }
+  document.getElementById('halfEmoji').textContent = emoji;
+  document.getElementById('halfTitle').textContent = title;
+  document.getElementById('halfMsg').textContent = msg;
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 8 — SPIN THE WHEEL
+═══════════════════════════════════════════ */
+const wheelEmotions = [
+  {label:'HAPPY',      emoji:'😀', task:'Make a happy face and say: I am happy!'},
+  {label:'SAD',        emoji:'😢', task:'Make a sad face and say: I am sad!'},
+  {label:'ANGRY',      emoji:'😠', task:'Make an angry face and say: I am angry!'},
+  {label:'SCARED',     emoji:'😨', task:'Make a scared face and say: I am scared!'},
+  {label:'DISGUSTED',  emoji:'🤢', task:'Make a yucky face and say: I am disgusted!'},
+  {label:'ANXIOUS',    emoji:'😰', task:'Make a worried face and say: I am anxious!'},
+  {label:'ENVIOUS',    emoji:'😒', task:'Make a jealous face and say: I am envious!'},
+  {label:'BORED',      emoji:'😑', task:'Yawn slowly and say: I am bored!'},
+  {label:'EMBARRASSED',emoji:'😳', task:'Cover your face and say: I am embarrassed!'},
+];
+const wheelColors = ['#FF6B9D','#FFD93D','#6BCB77','#4ECDC4','#C77DFF','#FF6B6B','#FFA07A','#87CEEB','#F4A6C6'];
+let wheelSpinCount = 0;
+let wheelAngle = 0;
+let wheelSpinning = false;
+
+function initWheel() {
+  const svg = document.getElementById('wheelSvg');
+  svg.innerHTML = '';
+  const n = wheelEmotions.length;
+  const cx = 100, cy = 100, r = 95;
+  const slice = (2 * Math.PI) / n;
+
+  wheelEmotions.forEach((item, i) => {
+    const startAngle = i * slice - Math.PI / 2;
+    const endAngle   = startAngle + slice;
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(endAngle);
+    const y2 = cy + r * Math.sin(endAngle);
+    const midAngle = startAngle + slice / 2;
+    const tx = cx + (r * 0.65) * Math.cos(midAngle);
+    const ty = cy + (r * 0.65) * Math.sin(midAngle);
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
+    path.setAttribute('fill', wheelColors[i]);
+    path.setAttribute('stroke','rgba(255,255,255,0.15)');
+    path.setAttribute('stroke-width','1.5');
+    svg.appendChild(path);
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', tx); txt.setAttribute('y', ty + 4);
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('font-size','11');
+    txt.setAttribute('font-family','Fredoka One, cursive');
+    txt.setAttribute('fill','white');
+    txt.textContent = item.label;
+    svg.appendChild(txt);
+  });
+
+  const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  circle.setAttribute('cx',cx); circle.setAttribute('cy',cy); circle.setAttribute('r','12');
+  circle.setAttribute('fill','white'); circle.setAttribute('stroke','#1a1650'); circle.setAttribute('stroke-width','2');
+  svg.appendChild(circle);
+}
+
+function spinWheel() {
+  if (wheelSpinning) return;
+  wheelSpinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('wheelResult').textContent = '';
+  document.getElementById('wheelTask').textContent = '';
+  document.getElementById('spinFeedback').textContent = '';
+  // reset any previous highlight
+  document.querySelectorAll('#wheelSvg path').forEach(p => {
+    p.setAttribute('opacity','1');
+    p.setAttribute('stroke-width','1.5');
+  });
+
+  const extraSpins = 4 + Math.random() * 4;
+  const targetAngle = wheelAngle + extraSpins * 360 + Math.random() * 360;
+  const duration = 3000;
+  const start = performance.now();
+  const startAngle = wheelAngle;
+
+  function animate(now) {
+    const elapsed = now - start;
+    const t = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    const current = startAngle + (targetAngle - startAngle) * ease;
+    document.getElementById('wheelSvg').style.transform = `rotate(${current}deg)`;
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      wheelAngle = targetAngle % 360;
+      wheelSpinning = false;
+      document.getElementById('spinBtn').disabled = false;
+      resolveWheel(wheelAngle);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function resolveWheel(angle) {
+  const n = wheelEmotions.length;
+  const sliceDeg = 360 / n;
+  // SVG draws sector i starting at top (-90°) and going clockwise.
+  // When the wheel has rotated `angle` degrees clockwise,
+  // the pointer (fixed at top = 0°) points into whichever sector
+  // is currently at 0°. We find that by reversing the rotation:
+  // a point at 0° was originally at (-angle mod 360).
+  const normalised = (((-angle) % 360) + 360) % 360;
+  const idx = Math.floor(normalised / sliceDeg) % n;
+  const item = wheelEmotions[idx];
+
+  // highlight the winning sector
+  const paths = document.querySelectorAll('#wheelSvg path');
+  paths.forEach((p, i) => {
+    p.setAttribute('opacity', i === idx ? '1' : '0.6');
+    if (i === idx) p.setAttribute('stroke-width', '3');
+  });
+
+  document.getElementById('wheelResult').textContent = item.emoji + ' ' + item.label;
+  document.getElementById('wheelTask').textContent = item.task;
+  document.getElementById('spinFeedback').textContent = '⭐ Great! Now show Teddy!';
+  document.getElementById('spinFeedback').className = 'feedback good';
+
+  wheelSpinCount++;
+  if (wheelSpinCount >= 3) {
+    earnStar();
+    setTimeout(() => document.getElementById('s8next').style.display = 'block', 600);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 9 — STORY / READING
+═══════════════════════════════════════════ */
+const storyBlanks = [
+  {correct:'kind',      options:['kind','angry','bored','scared']},
+  {correct:'someone',   options:['someone','something','somewhere','sometime']},
+  {correct:'scared',    options:['scared','happy','bored','envious']},
+  {correct:'brave',     options:['brave','angry','bored','disgusted']},
+  {correct:'happy',     options:['happy','sad','anxious','embarrassed']},
+  {correct:'feelings',  options:['feelings','animals','colors','numbers']},
+  {correct:'Sometime',  options:['Sometime','Someone','Anything','Everywhere']},
+];
+
+const compData = [
+  {q:'Why is the rabbit scared?',
+   options:['It is dark.','It is hungry.','It is cold.'],
+   correct:'It is dark.'},
+  {q:'How does Teddy help the rabbit?',
+   options:['He gives it food.','He says, "Don\'t worry, I am here!"','He runs away.'],
+   correct:'He says, "Don\'t worry, I am here!"'},
+];
+
+let compAnswered = 0;
+
+function blankHtml(i) {
+  const b = storyBlanks[i];
+  const shuffled = [...b.options].sort(()=>Math.random()-0.5);
+  const opts = '<option value="">?</option>' + shuffled.map(o => `<option value="${o}">${o}</option>`).join('');
+  return `<select class="blank-select" id="blank${i}">${opts}</select>`;
+}
+
+function renderStory() {
+  const html =
+    'Teddy is a bear. Teddy always helps his friends. Teddy is very ' + blankHtml(0) + '.<br><br>' +
+    'One day, ' + blankHtml(1) + ' is lost in the forest. It is a little rabbit.<br><br>' +
+    'It is dark. The rabbit cannot see. The rabbit is ' + blankHtml(2) + '.<br><br>' +
+    'Teddy is not afraid. Teddy is ' + blankHtml(3) + '. Teddy says, "Don\'t worry! I am here!"<br><br>' +
+    'Teddy helps the rabbit. Now the rabbit is ' + blankHtml(4) + '.<br><br>' +
+    'It is good to talk about your ' + blankHtml(5) + '.<br><br>' +
+    blankHtml(6) + ', Teddy visits his other animal friends too.';
+  document.getElementById('storyText').innerHTML = html;
+}
+
+function initStory() {
+  document.getElementById('s9next').style.display = 'none';
+  document.getElementById('storyCheckBtn').style.display = 'block';
+  document.getElementById('storyFeedback').textContent = '';
+  document.getElementById('comprehension').style.display = 'none';
+  compAnswered = 0;
+  renderStory();
+}
+
+function checkStory() {
+  let allCorrect = true;
+  storyBlanks.forEach((b, i) => {
+    const sel = document.getElementById('blank' + i);
+    sel.classList.remove('correct', 'wrong');
+    if (sel.value === b.correct) {
+      sel.classList.add('correct');
+    } else {
+      sel.classList.add('wrong');
+      allCorrect = false;
+    }
+  });
+  const fb = document.getElementById('storyFeedback');
+  if (allCorrect) {
+    fb.textContent = '🎉 Perfect! You filled in the whole story!';
+    fb.className = 'feedback good';
+    confetti(20);
+    document.getElementById('storyCheckBtn').style.display = 'none';
+    document.getElementById('comprehension').style.display = 'block';
+    initComprehension();
+  } else {
+    fb.textContent = '❌ Some words are wrong — try again!';
+    fb.className = 'feedback bad';
+  }
+}
+
+function initComprehension() {
+  compAnswered = 0;
+  const wrap = document.getElementById('compQuestions');
+  wrap.innerHTML = '';
+  compData.forEach((q, qi) => {
+    const qDiv = document.createElement('div');
+    qDiv.className = 'comp-q';
+    qDiv.textContent = (qi + 1) + '. ' + q.q;
+    wrap.appendChild(qDiv);
+
+    const optsDiv = document.createElement('div');
+    optsDiv.className = 'comp-options';
+    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+    shuffled.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'comp-opt';
+      btn.textContent = opt;
+      btn.onclick = () => checkComp(btn, opt, q.correct);
+      optsDiv.appendChild(btn);
+    });
+    wrap.appendChild(optsDiv);
+  });
+}
+
+function checkComp(btn, chosen, correct) {
+  const group = btn.parentElement;
+  group.querySelectorAll('.comp-opt').forEach(b => b.classList.add('disabled'));
+  if (chosen === correct) {
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+    group.querySelectorAll('.comp-opt').forEach(b => {
+      if (b.textContent === correct) b.classList.add('correct');
+    });
+  }
+  compAnswered++;
+  if (compAnswered === compData.length) {
+    earnStar(); confetti(30);
+    const fb = document.getElementById('storyFeedback');
+    fb.textContent = '🎉 Great reading, Sasha! Teddy is proud of you!';
+    fb.className = 'feedback good';
+    setTimeout(() => document.getElementById('s9next').style.display = 'block', 600);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN 10 — FAST QUIZ
+═══════════════════════════════════════════ */
+const fastQuestions = [
+  {item:'😀', correct:'happy',      opts:['happy','sad','angry','bored']},
+  {item:'🐱', correct:'cat',        opts:['dog','cat','rabbit','bear']},
+  {item:'😢', correct:'sad',        opts:['happy','scared','sad','angry']},
+  {item:'🐶', correct:'dog',        opts:['cat','spider','dog','snake']},
+  {item:'😠', correct:'angry',      opts:['angry','anxious','happy','envious']},
+  {item:'🐰', correct:'rabbit',     opts:['turtle','rabbit','bear','butterfly']},
+  {item:'🤢', correct:'disgusted',  opts:['disgusted','sad','angry','bored']},
+  {item:'🐻', correct:'bear',       opts:['bear','rabbit','cat','dog']},
+  {item:'😰', correct:'anxious',    opts:['happy','anxious','scared','embarrassed']},
+  {item:'🦋', correct:'butterfly',  opts:['spider','snake','butterfly','turtle']},
+  {item:'😑', correct:'bored',      opts:['bored','envious','happy','sad']},
+  {item:'🐢', correct:'turtle',     opts:['snake','spider','turtle','cat']},
+];
+
+let fastIndex = 0;
+let fastCorrect = 0;
+
+function initFast() {
+  fastIndex = 0; fastCorrect = 0;
+  document.getElementById('s10next').style.display = 'none';
+  document.getElementById('fastScoreMini').textContent = '⭐ 0 correct';
+  showFastQ();
+}
+
+function showFastQ() {
+  if (fastIndex >= fastQuestions.length) return;
+  const q = fastQuestions[fastIndex];
+  document.getElementById('fastQNum').textContent = `Question ${fastIndex+1} / ${fastQuestions.length}`;
+  document.getElementById('fastItem').textContent = q.item;
+  document.getElementById('fastFeedback').textContent = '';
+
+  const opts = document.getElementById('fastOptions');
+  opts.innerHTML = '';
+  const shuffled = [...q.opts].sort(()=>Math.random()-0.5);
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'fast-opt';
+    btn.textContent = opt;
+    btn.onclick = () => checkFast(btn, opt, q.correct);
+    opts.appendChild(btn);
+  });
+}
+
+function checkFast(btn, chosen, correct) {
+  document.querySelectorAll('.fast-opt').forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById('fastFeedback');
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    fb.textContent = '⭐ Yes! ' + correct + '!';
+    fb.className = 'feedback good';
+    fastCorrect++;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.fast-opt').forEach(b => {
+      if (b.textContent === correct) b.classList.add('correct');
+    });
+    fb.textContent = '❌ It\'s ' + correct + '!';
+    fb.className = 'feedback bad';
+  }
+  document.getElementById('fastScoreMini').textContent = `⭐ ${fastCorrect} correct`;
+  fastIndex++;
+  if (fastIndex < fastQuestions.length) {
+    setTimeout(showFastQ, 1100);
+  } else {
+    if (fastCorrect >= 9) earnStar();
+    confetti(fastCorrect >= 9 ? 40 : 15);
+    setTimeout(() => {
+      fb.textContent = `🏁 Done! ${fastCorrect} / ${fastQuestions.length} correct!`;
+      fb.className = 'feedback good';
+      document.getElementById('s10next').style.display = 'block';
+    }, 900);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   FINAL SCREEN
+═══════════════════════════════════════════ */
+function showFinal() {
+  earnStar();
+  goTo('s11');
+  confetti(70);
+
+  const s = stars;
+  document.getElementById('finalStars').textContent = '⭐'.repeat(Math.min(s, TOTAL_SCREENS));
+  document.getElementById('finalScoreBig').textContent = s + ' / ' + TOTAL_SCREENS + ' ⭐';
+
+  let medal, title, msg, story;
+  if (s >= 10) {
+    medal='🥇'; title='SUPERSTAR SASHA! 🌟';
+    msg='You are absolutely amazing! Teddy is so happy and proud of you!';
+    story='🐻 "Thank you, Sasha! I found ALL my friends! You are the best helper in the whole world! See you next lesson! 🐱🐶🕷️🐍🐰🐻🦋🐢"';
+  } else if (s >= 8) {
+    medal='🥈'; title='Excellent, Sasha! 🎉';
+    msg='Really great work today! Teddy found almost all his friends!';
+    story='🐻 "Thank you so much, Sasha! We found most of my friends! You are getting better and better! See you next time! 🐱🐶🐰🦋"';
+  } else {
+    medal='🥉'; title='Good job, Sasha! 💪';
+    msg='You tried your best and that\'s what matters! Let\'s keep learning!';
+    story='🐻 "Thank you for trying, Sasha! We will find more friends next time! Keep going! 🐱🐶"';
+  }
+
+  document.getElementById('finalMedal').textContent = medal;
+  document.getElementById('finalTitle').textContent = title;
+  document.getElementById('finalMsg').textContent = msg;
+  document.getElementById('finalStory').textContent = story;
+}
+
+function restartAll() {
+  stars = 0; score = 0; total = 0;
+  wheelSpinCount = 0; wheelAngle = 0;
+  feelingPicked = false;
+  renderStars();
+  updateProgress(1);
+  document.getElementById('s2next').style.display = 'none';
+  document.getElementById('feelingResponse').style.display = 'none';
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('picked'));
+  goTo('s1');
+}
+
+/* ═══════════════════════════════════════════
+   PAGE INIT HOOKS
+═══════════════════════════════════════════ */
+const inited = {};
+const origGoTo = goTo;
+window.goTo = function(id) {
+  origGoTo(id);
+  if (!inited[id]) {
+    inited[id] = true;
+    if (id==='s3')  initMemory();
+    if (id==='s4')  initMatch();
+    if (id==='s5')  initGuess();
+    if (id==='s6')  initAct();
+    if (id==='s7')  initOdd();
+    if (id==='s8')  initWheel();
+    if (id==='s9')  initStory();
+    if (id==='s10') initFast();
+  }
+};
+</script>
+</body>
+</html>
